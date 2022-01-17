@@ -142,3 +142,6 @@ config
 
 # Mac Finder
 .DS_Store
+
+# Jetbrain
+.idea

@@ -10,7 +10,7 @@ app = App(token=SLACK_BOT_TOKEN)
 @app.event('message')
 def log_message(message):
     print(message)
-    if message['channel'] == 'C015S8KQL85':
+    if message['channel'] == 'C015S8KQL85' and message['bot_id'] == 'B015TRV9KNF':
         parsed = parseMessage(message['text'])
         writeToGoogleSheet(message['ts'], parsed)
 

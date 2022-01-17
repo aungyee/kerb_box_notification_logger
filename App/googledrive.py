@@ -1,7 +1,7 @@
 import gspread
 
 sa = gspread.service_account(filename='config/service_account.json')
-sh = sa.open('kerb_box_notification_log')
+sh = sa.open('Kerb Box Parsed Notifications')
 
 wks = sh.worksheet("Sheet1")
 

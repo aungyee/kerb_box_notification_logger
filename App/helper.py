@@ -154,6 +154,7 @@ def getLocalTime(timestamp, hostname):
 
 def writeToGoogleSheet(timestamp, parsedMessage):
     utcTime = datetime.fromtimestamp(float(timestamp))
+    localDatetime = 'Unknown'
     localDate = 'Unknown'
     localTime = 'Unknown'
     timezone = 'Unknown'
@@ -163,10 +164,13 @@ def writeToGoogleSheet(timestamp, parsedMessage):
     if ltime:
         localTime = ltime.strftime("%H:%M:%S")
         localDate = ltime.strftime("%m/%d/%Y")
+        localDatetime = ltime.strftime("%m/%d/%Y %H:%M:%S")
         timezone = tzone
 
-    message = [utcTime.strftime("%m/%d/%Y"),
+    message = [utcTime.strftime("%m/%d/%Y %H:%M:%S"),
+               utcTime.strftime("%m/%d/%Y"),
                utcTime.strftime("%H:%M:%S"),
+               localDatetime,
                localDate,
                localTime,
                timezone,

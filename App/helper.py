@@ -92,7 +92,7 @@ def parseMessage(message):
         for index, value in enumerate(hostnameList):
             output['hostname' + str(index)] = value
 
-    if output['plate_number'] != '':
+    if output['plate_number'] != '' and output['plate_number'].find('(') != -1:
         plateNumber = output['plate_number']
         output['plate_number_prob'] = plateNumber[plateNumber.find('(') + 1:plateNumber.find(')')]
         output['plate_number'] = plateNumber[:plateNumber.find('(')]
@@ -198,7 +198,3 @@ def writeToGoogleSheet(timestamp, parsedMessage):
                parsedMessage['raw']]
 
     append_row_to_google_sheets(message)
-
-
-if __name__ == '__main__':
-    getLocalTime(float(1459750060.000002),'my-gombak-entry-azer9')

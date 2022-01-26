@@ -163,12 +163,12 @@ def writeToGoogleSheet(timestamp, parsedMessage):
 
     if ltime:
         localTime = ltime.strftime("%H:%M:%S")
-        localDate = ltime.strftime("%m/%d/%Y")
-        localDatetime = ltime.strftime("%m/%d/%Y %H:%M:%S")
+        localDate = ltime.strftime("%d/%m/%Y")
+        localDatetime = ltime.strftime("%d/%m/%Y %H:%M:%S")
         timezone = tzone
 
-    message = [utcTime.strftime("%m/%d/%Y %H:%M:%S"),
-               utcTime.strftime("%m/%d/%Y"),
+    message = [utcTime.strftime("%d/%m/%Y %H:%M:%S"),
+               utcTime.strftime("%d/%m/%Y"),
                utcTime.strftime("%H:%M:%S"),
                localDatetime,
                localDate,

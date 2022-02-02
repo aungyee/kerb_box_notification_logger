@@ -258,6 +258,3 @@ def writeToSupportGoogleSheet(timestamp, parsedMessage):
                ]
 
     append_row_to_customer_support_google_sheets(message)
-
-if __name__ == '__main__':
-    getLocalTime('1643193002.469400','MYS-KUL-SWY-WS-EntryGat'.lower())

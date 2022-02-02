@@ -1,10 +1,10 @@
 import pandas as pd
 from dateutil import tz
 from datetime import datetime
-from googledrive import append_row_to_google_sheets
+from googledrive import append_row_to_notif_google_sheets, append_row_to_customer_support_google_sheets
 
 
-def parseMessage(message):
+def parseNotificationMessage(message):
     splitMessage = message.split(',')
     output = {
         'hostname': '',
@@ -115,30 +115,38 @@ def parseMessage(message):
     return output
 
 
-def writeToCSV(timestamp, parsedMessage):
-    timestamp = datetime.fromtimestamp(float(timestamp))
-    text = '{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15}' \
-        .format(
-            timestamp.strftime("%m/%d/%Y"),
-            timestamp.strftime("%H:%M:%S"),
-            parsedMessage['hostname'],
-            parsedMessage['action'],
-            parsedMessage['plate_number'],
-            parsedMessage['vehicle_type'],
-            parsedMessage['vehicle_color'],
-            parsedMessage['vehicle_model_make'],
-            parsedMessage['lo'],
-            parsedMessage['eth0'],
-            parsedMessage['wlan0'],
-            parsedMessage['tun0'],
-            parsedMessage['ppp0'],
-            parsedMessage['docker0'],
-            parsedMessage['vpn'],
-            parsedMessage['extra']
-        )
-    with open('logs/kerb_box_log.csv', 'a') as file:
-        file.write(text)
-        file.write('\n')
+def parseCustomerSupportGateMessage(message):
+
+    output = {
+        'hostname': '',
+        'hostname0': '',
+        'hostname1': '',
+        'hostname2': '',
+        'hostname3': '',
+        'hostname4': '',
+        'hostname5': '',
+        'hostname6': '',
+        'problem': '',
+        'raw': message}
+
+    splitMessage = message.lower().split(' ')
+    output['hostname'] = splitMessage[0]
+
+    error = ''
+
+    for i in range(1,len(splitMessage)):
+        error = error + splitMessage[i] + ' '
+
+    output['problem'] = error.strip()
+
+    if output['hostname'] != '':
+        hostname = output['hostname']
+        hostnameList = hostname.split('-')
+
+        for index, value in enumerate(hostnameList):
+            output['hostname' + str(index)] = value
+
+    return output
 
 
 def getLocalTime(timestamp, hostname):
@@ -149,10 +157,21 @@ def getLocalTime(timestamp, hostname):
         timezone = tz.gettz(row['timezone'].values[0])
         localTime = datetime.fromtimestamp(float(timestamp), tz = timezone)
         return localTime, row['timezone'].values[0]
-    return None, None
+    else:
+        formats = pd.read_csv('config/format.csv')
+        hostname0 = hostname.split('-')[0]
+        if hostname0 in formats['hostname0'].values:
+            timezone = formats[formats['hostname0'] == hostname0]['timezone'][0]
+            with open('config/boxes.csv','a') as file:
+                stringToWrite = hostname + ',' + ',' + ',' + timezone
+                file.write(stringToWrite)
+                file.write('\n')
+            return getLocalTime(timestamp,hostname)
+        else:
+            return None, None
 
 
-def writeToGoogleSheet(timestamp, parsedMessage):
+def writeToNotificationGoogleSheet(timestamp, parsedMessage):
     utcTime = datetime.fromtimestamp(float(timestamp))
     localDatetime = 'Unknown'
     localDate = 'Unknown'
@@ -201,4 +220,41 @@ def writeToGoogleSheet(timestamp, parsedMessage):
                parsedMessage['extra'],
                parsedMessage['raw']]
 
-    append_row_to_google_sheets(message)
+    append_row_to_notif_google_sheets(message)
+
+
+def writeToSupportGoogleSheet(timestamp, parsedMessage):
+    utcTime = datetime.fromtimestamp(float(timestamp))
+    localDatetime = 'Unknown'
+    localDate = 'Unknown'
+    localTime = 'Unknown'
+    timezone = 'Unknown'
+
+    ltime, tzone = getLocalTime(timestamp, parsedMessage['hostname'])
+
+    if ltime:
+        localTime = ltime.strftime("%H:%M:%S")
+        localDate = ltime.strftime("%d/%m/%Y")
+        localDatetime = ltime.strftime("%d/%m/%Y %H:%M:%S")
+        timezone = tzone
+
+    message = [utcTime.strftime("%d/%m/%Y %H:%M:%S"),
+               utcTime.strftime("%d/%m/%Y"),
+               utcTime.strftime("%H:%M:%S"),
+               localDatetime,
+               localDate,
+               localTime,
+               timezone,
+               parsedMessage['hostname'],
+               parsedMessage['hostname0'],
+               parsedMessage['hostname1'],
+               parsedMessage['hostname2'],
+               parsedMessage['hostname3'],
+               parsedMessage['hostname4'],
+               parsedMessage['hostname5'],
+               parsedMessage['hostname6'],
+               parsedMessage['problem'],
+               parsedMessage['raw']
+               ]
+
+    append_row_to_customer_support_google_sheets(message)

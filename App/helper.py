@@ -161,7 +161,7 @@ def getLocalTime(timestamp, hostname):
         formats = pd.read_csv('config/format.csv')
         hostname0 = hostname.split('-')[0]
         if hostname0 in formats['hostname0'].values:
-            timezone = formats[formats['hostname0'] == hostname0]['timezone'][0]
+            timezone = formats[formats['hostname0'] == hostname0]['timezone'].values[0]
             with open('config/boxes.csv','a') as file:
                 stringToWrite = hostname + ',' + ',' + ',' + timezone
                 file.write(stringToWrite)
@@ -258,3 +258,6 @@ def writeToSupportGoogleSheet(timestamp, parsedMessage):
                ]
 
     append_row_to_customer_support_google_sheets(message)
+
+if __name__ == '__main__':
+    getLocalTime('1643193002.469400','MYS-KUL-SWY-WS-EntryGat'.lower())

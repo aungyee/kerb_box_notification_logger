@@ -32,7 +32,9 @@ def parseNotificationMessage(message):
         'docker0': '',
         'vpn': '',
         'extra': '',
-        'raw': message
+        'raw': message,
+        'signal_strength': '',
+        'network_operator': ''
     }
 
     for item in splitMessage:
@@ -74,6 +76,10 @@ def parseNotificationMessage(message):
             output['action'] = 'connection error'
             output['hostname'] = item[:item.find('failover') - 1]
             output['vpn'] = item[item.find('failover') + 23:]
+        elif item.isnumeric() and not item.startswith('network: lo: '):
+            output['signal_strength'] = item
+        elif item.startswith('"'):
+            output['network_operator'] = item[1:-1]
         else:
             output['extra'] = item[0:]
 
@@ -202,6 +208,8 @@ def writeToNotificationGoogleSheet(timestamp, parsedMessage):
                parsedMessage['hostname5'],
                parsedMessage['hostname6'],
                parsedMessage['action'],
+               parsedMessage['signal_strength'],
+               parsedMessage['network_operator'],
                parsedMessage['plate_number'],
                parsedMessage['plate_number_prob'],
                parsedMessage['vehicle_type'],

@@ -34,7 +34,8 @@ def parseNotificationMessage(message):
         'extra': '',
         'raw': message,
         'signal_strength': '',
-        'network_operator': ''
+        'network_operator': '',
+        'network_type': ''
     }
 
     for item in splitMessage:
@@ -80,6 +81,8 @@ def parseNotificationMessage(message):
             output['signal_strength'] = item
         elif item.startswith('"'):
             output['network_operator'] = item[1:-1]
+        elif not item.startswith('network: lo: ') and (item == 'lte' or item == 'nothing'):
+            output['network_type'] = item
         else:
             output['extra'] = item[0:]
 
@@ -210,6 +213,7 @@ def writeToNotificationGoogleSheet(timestamp, parsedMessage):
                parsedMessage['action'],
                parsedMessage['signal_strength'],
                parsedMessage['network_operator'],
+               parsedMessage['network_type'],
                parsedMessage['plate_number'],
                parsedMessage['plate_number_prob'],
                parsedMessage['vehicle_type'],
